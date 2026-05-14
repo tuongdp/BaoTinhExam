@@ -15,12 +15,16 @@ import { usersRoutes } from "./routes/users.routes.js";
 export const app = express();
 
 app.use(helmet());
-app.use(cors({
+const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
     callback(null, isAllowedOrigin(origin));
   },
-  credentials: true
-}));
+  credentials: true,
+  optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser());
 app.use(`/${env.UPLOAD_DIR}`, express.static(env.UPLOAD_DIR));

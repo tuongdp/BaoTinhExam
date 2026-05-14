@@ -23,10 +23,13 @@ export const env = envSchema.parse(process.env);
 
 export const clientOrigins = [
   env.CLIENT_URL,
+  "https://bao-tinh-exam.vercel.app",
+  "https://bao-tinh-exam-backend.vercel.app",
   ...(env.CLIENT_URLS?.split(",").map((origin) => origin.trim()).filter(Boolean) ?? [])
 ];
 
 export const isAllowedOrigin = (origin?: string) => {
   if (!origin) return true;
-  return clientOrigins.includes(origin);
+  if (clientOrigins.includes(origin)) return true;
+  return /^https:\/\/bao-tinh-exam-[a-z0-9-]+\.vercel\.app$/i.test(origin);
 };
