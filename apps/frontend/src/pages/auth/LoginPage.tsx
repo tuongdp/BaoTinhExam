@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { api } from "../../services/api";
 import { useAuthStore } from "../../store/auth";
 import { Button } from "../../components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 
 export const LoginPage = () => {
@@ -27,21 +28,25 @@ export const LoginPage = () => {
 
   return (
     <main className="grid min-h-screen place-items-center bg-muted/35 p-4">
-      <form onSubmit={submit} className="w-full max-w-sm space-y-4 rounded-md border border-border bg-background p-6 shadow-sm">
-        <div>
-          <h1 className="text-2xl font-semibold">ExamHub</h1>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Sign in to manage or take exams.</p>
-        </div>
-        <Input value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Email" type="email" />
-        <Input value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Password" type="password" />
-        <Button disabled={loading} className="w-full">
-          <LogIn size={18} />
-          {loading ? "Signing in..." : "Sign in"}
-        </Button>
-        <Link className="block text-center text-sm text-primary" to="/register">
-          Create candidate account
-        </Link>
-      </form>
+      <Card className="w-full max-w-sm">
+        <CardHeader>
+          <CardTitle className="text-2xl">ExamHub</CardTitle>
+          <CardDescription>Đăng nhập để quản lý hoặc làm bài thi.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={submit} className="space-y-4">
+            <Input value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Email" type="email" />
+            <Input value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Mật khẩu" type="password" />
+            <Button disabled={loading} className="w-full">
+              <LogIn size={18} />
+              {loading ? "Đang đăng nhập..." : "Đăng nhập"}
+            </Button>
+            <Button asChild variant="link" className="w-full">
+              <Link to="/register">Tạo tài khoản thí sinh</Link>
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </main>
   );
 };

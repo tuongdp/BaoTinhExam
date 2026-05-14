@@ -4,7 +4,7 @@ import { HttpError } from "../utils/http.js";
 
 export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
   if (error instanceof ZodError) {
-    res.status(422).json({ message: "Validation failed", issues: error.flatten() });
+    res.status(422).json({ message: "Dữ liệu không hợp lệ", issues: error.flatten() });
     return;
   }
 
@@ -14,5 +14,5 @@ export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
   }
 
   console.error(error);
-  res.status(500).json({ message: "Internal server error" });
+  res.status(500).json({ message: "Lỗi máy chủ nội bộ" });
 };

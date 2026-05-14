@@ -16,4 +16,4 @@ questionsRoutes.get("/:id", requireAuth, getQuestion);
 questionsRoutes.post("/", adminOnly, validate(questionSchema), createQuestion);
 questionsRoutes.put("/:id", adminOnly, validate(questionSchema), updateQuestion);
 questionsRoutes.delete("/:id", adminOnly, deleteQuestion);
-questionsRoutes.post("/import", adminOnly, upload.single("file"), (_req: Request, res: Response) => res.status(202).json({ message: "Question import queued" }));
+questionsRoutes.post("/import", adminOnly, upload.single("file"), (_req: Request, res: Response) => res.status(202).json({ message: "Đã đưa tác vụ nhập câu hỏi vào hàng đợi" }));

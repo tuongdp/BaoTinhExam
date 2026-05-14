@@ -2,6 +2,7 @@ import { Activity, BookOpen, DoorOpen, FileQuestion, Users } from "lucide-react"
 import { useEffect, useState } from "react";
 import { api } from "../../services/api";
 import { Skeleton } from "../../components/ui/skeleton";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
 
 interface Stats {
   exams: number;
@@ -18,36 +19,40 @@ export const DashboardPage = () => {
   }, []);
 
   const cards = [
-    { label: "Exams", value: stats?.exams, icon: BookOpen },
-    { label: "Questions", value: stats?.questions, icon: FileQuestion },
-    { label: "Users", value: stats?.users, icon: Users },
-    { label: "Rooms", value: stats?.rooms, icon: DoorOpen }
+    { label: "Đề thi", value: stats?.exams, icon: BookOpen },
+    { label: "Câu hỏi", value: stats?.questions, icon: FileQuestion },
+    { label: "Người dùng", value: stats?.users, icon: Users },
+    { label: "Phòng thi", value: stats?.rooms, icon: DoorOpen }
   ];
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Dashboard</h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400">System overview and live exam operations.</p>
+        <h1 className="text-2xl font-semibold">Tổng quan</h1>
+        <p className="text-sm text-muted-foreground">Tình hình hệ thống và hoạt động thi trực tuyến.</p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map((card) => (
-          <div key={card.label} className="rounded-md border border-border p-4">
+          <Card key={card.label}>
+            <CardContent className="p-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-slate-500 dark:text-slate-400">{card.label}</span>
+              <span className="text-sm text-muted-foreground">{card.label}</span>
               <card.icon size={20} />
             </div>
             {card.value == null ? <Skeleton className="mt-4 h-8 w-20" /> : <div className="mt-4 text-3xl font-semibold">{card.value}</div>}
-          </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
-      <section className="rounded-md border border-border p-4">
-        <div className="mb-3 flex items-center gap-2 font-medium">
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
           <Activity size={18} />
-          Recent activity
-        </div>
-        <p className="text-sm text-slate-500 dark:text-slate-400">Activity API is ready for submissions and rooms.</p>
-      </section>
+          Hoạt động gần đây
+          </CardTitle>
+          <CardDescription>API hoạt động đã sẵn sàng cho bài nộp và phòng thi.</CardDescription>
+        </CardHeader>
+      </Card>
     </div>
   );
 };

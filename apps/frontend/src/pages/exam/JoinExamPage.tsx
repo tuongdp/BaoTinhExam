@@ -2,6 +2,7 @@ import { DoorOpen, LogOut } from "lucide-react";
 import { FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { api } from "../../services/api";
 import { useAuthStore } from "../../store/auth";
@@ -22,22 +23,26 @@ export const JoinExamPage = () => {
     <main className="min-h-screen bg-background p-4">
       <div className="mx-auto flex max-w-3xl items-center justify-between py-4">
         <h1 className="text-xl font-semibold">ExamHub</h1>
-        <Button className="bg-slate-900 dark:bg-slate-700" onClick={logout}>
+        <Button variant="secondary" onClick={logout}>
           <LogOut size={18} />
-          Logout
+          Đăng xuất
         </Button>
       </div>
-      <form onSubmit={submit} className="mx-auto mt-20 max-w-md space-y-4 rounded-md border border-border p-6">
-        <div>
-          <h2 className="text-2xl font-semibold">Join exam room</h2>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Enter the 6-character room code from your administrator.</p>
-        </div>
-        <Input value={code} onChange={(event) => setCode(event.target.value.toUpperCase())} maxLength={6} />
-        <Button className="w-full">
-          <DoorOpen size={18} />
-          Join room
-        </Button>
-      </form>
+      <Card className="mx-auto mt-20 max-w-md">
+        <CardHeader>
+          <CardTitle className="text-2xl">Vào phòng thi</CardTitle>
+          <CardDescription>Nhập mã phòng 6 ký tự do quản trị viên cung cấp.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={submit} className="space-y-4">
+            <Input value={code} onChange={(event) => setCode(event.target.value.toUpperCase())} maxLength={6} />
+            <Button className="w-full">
+              <DoorOpen size={18} />
+              Vào phòng
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </main>
   );
 };

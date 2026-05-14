@@ -38,7 +38,12 @@ export const registerSocketHandlers = (io: Server) => {
     });
   });
 
+  let isSyncingRooms = false;
+  let lastTimerWarningAt = 0;
+
   setInterval(async () => {
+    if (isSyncingRooms) return;
+    isSyncingRooms = true;
     try {
       const rooms = await prisma.examRoom.findMany({ where: { status: "IN_PROGRESS" }, include: { exam: true } });
       for (const room of rooms) {
@@ -48,7 +53,13 @@ export const registerSocketHandlers = (io: Server) => {
         if (remainingSeconds === 0) io.to(`room:${room.id}`).emit("time-up");
       }
     } catch (error) {
-      console.warn("Room timer sync skipped:", error instanceof Error ? error.message : error);
+      const now = Date.now();
+      if (now - lastTimerWarningAt > 30_000) {
+        lastTimerWarningAt = now;
+        console.warn("Bỏ qua đồng bộ thời gian phòng thi:", error instanceof Error ? error.message : error);
+      }
+    } finally {
+      isSyncingRooms = false;
     }
-  }, 1000);
+  }, 5000);
 };

@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
-import { clientOrigins, env } from "./config/env.js";
+import { env, isAllowedOrigin } from "./config/env.js";
 import { errorHandler } from "./middleware/error.js";
 import { authRoutes } from "./routes/auth.routes.js";
 import { dashboardRoutes } from "./routes/dashboard.routes.js";
@@ -15,7 +15,12 @@ import { usersRoutes } from "./routes/users.routes.js";
 export const app = express();
 
 app.use(helmet());
-app.use(cors({ origin: clientOrigins, credentials: true }));
+app.use(cors({
+  origin: (origin, callback) => {
+    callback(null, isAllowedOrigin(origin));
+  },
+  credentials: true
+}));
 app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser());
 app.use(`/${env.UPLOAD_DIR}`, express.static(env.UPLOAD_DIR));

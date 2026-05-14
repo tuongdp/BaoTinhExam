@@ -1,13 +1,13 @@
 # ExamHub
 
-Full-stack online exam platform scaffolded with:
+Nền tảng thi trực tuyến full-stack, gồm:
 
-- Frontend: React, Vite, TypeScript, Tailwind CSS
-- Backend: Node.js, Express, Prisma, Socket.io
-- Database: MySQL by default
-- Auth: JWT access and refresh tokens
+- Giao diện: React, Vite, TypeScript, Tailwind CSS, shadcn UI/Radix UI
+- Máy chủ API: Node.js, Express, Prisma, Socket.io
+- Cơ sở dữ liệu: MySQL
+- Xác thực: JWT access token và refresh token
 
-## Setup
+## Chạy local
 
 ```bash
 cp apps/backend/.env.example apps/backend/.env
@@ -19,17 +19,30 @@ npm run seed
 npm run dev
 ```
 
-Open:
+Nếu dev server báo port `4000` hoặc `5173` đang được dùng, dừng tiến trình cũ rồi chạy lại:
 
-- Frontend: `http://localhost:5173`
-- Backend: `http://localhost:4000/health`
+```bash
+npm run dev:stop
+npm run dev
+```
 
-Default seed admin:
+Mở ứng dụng:
+
+- Giao diện: `http://localhost:5173`
+- Kiểm tra API: `http://localhost:4000/health`
+
+Nếu dùng MySQL XAMPP mặc định, `root` thường không có mật khẩu. Khi đó đặt:
+
+```text
+DATABASE_URL=mysql://root@127.0.0.1:3306/examhub
+```
+
+Tài khoản quản trị mặc định sau khi seed:
 
 - Email: `admin@examhub.local`
-- Password: `Admin@123456`
+- Mật khẩu: `Admin@123456`
 
-## Structure
+## Cấu trúc
 
 ```text
 apps/
@@ -37,47 +50,47 @@ apps/
   frontend/
 ```
 
-## Deploy To Railway With MySQL
+## Biến môi trường
 
-Recommended setup on Railway:
+Máy chủ API cần các biến sau:
 
-- Backend service: `apps/backend`
-- Frontend service: `apps/frontend`
-- Database: Railway MySQL
-
-This repo includes:
-
-- `apps/backend/railway.json`
-- `apps/frontend/railway.json`
-
-Railway docs note that MySQL exposes variables such as `MYSQL_URL`, and monorepos should configure the root directory per service.
-
-### 1. Push Latest Commit
-
-```bash
-git push
+```text
+NODE_ENV=production
+PORT=4000
+DATABASE_URL=mysql://user:password@host:3306/database
+CLIENT_URL=https://ten-frontend-cua-ban
+CLIENT_URLS=https://ten-frontend-cua-ban,http://localhost:5173
+JWT_ACCESS_SECRET=chuoi-bi-mat-dai-it-nhat-16-ky-tu
+JWT_REFRESH_SECRET=chuoi-bi-mat-khac-dai-it-nhat-16-ky-tu
+ACCESS_TOKEN_TTL=15m
+REFRESH_TOKEN_DAYS=7
+UPLOAD_DIR=uploads
 ```
 
-If Git asks for credentials, sign in to GitHub from your terminal or push from your IDE.
+Giao diện cần:
 
-### 2. Create Railway Project
+```text
+VITE_API_URL=https://ten-backend-cua-ban/api
+VITE_SOCKET_URL=https://ten-backend-cua-ban
+```
 
-1. Open Railway Dashboard.
-2. Create a new project.
-3. Add a MySQL database service.
-4. Add a GitHub repo service for backend.
-5. Add another GitHub repo service for frontend.
+## Deploy Railway
 
-### 3. Backend Service Settings
+Railway là lựa chọn gọn nhất nếu bạn dùng MySQL trên cùng nền tảng.
 
-Set backend service root directory:
+1. Tạo project Railway mới.
+2. Thêm dịch vụ MySQL.
+3. Thêm một service cho backend từ GitHub repo.
+4. Thêm một service cho frontend từ cùng GitHub repo.
+
+Dịch vụ API:
 
 ```text
 Root Directory: /apps/backend
 Config File Path: /apps/backend/railway.json
 ```
 
-Set backend environment variables:
+Biến môi trường API:
 
 ```text
 NODE_ENV=production
@@ -91,81 +104,86 @@ REFRESH_TOKEN_DAYS=7
 UPLOAD_DIR=uploads
 ```
 
-Backend commands are defined in `apps/backend/railway.json`:
-
-```text
-Build Command: npm install && npm run prisma:generate && npm run build && npm run prisma:deploy
-Start Command: npm start
-Health Check Path: /health
-```
-
-After deploy, open the backend public URL:
-
-```text
-https://your-backend.up.railway.app/health
-```
-
-Expected:
-
-```json
-{"ok":true}
-```
-
-### 4. Seed Admin
-
-After the backend deploy succeeds, open the backend service shell and run:
-
-```bash
-npm run seed
-```
-
-Default admin:
-
-- Email: `admin@examhub.local`
-- Password: `Admin@123456`
-
-Change this password after first login.
-
-### 5. Frontend Service Settings
-
-Set frontend service root directory:
+Dịch vụ giao diện:
 
 ```text
 Root Directory: /apps/frontend
 Config File Path: /apps/frontend/railway.json
 ```
 
-Set frontend environment variables:
+Biến môi trường giao diện:
 
 ```text
 VITE_API_URL=https://your-backend.up.railway.app/api
 VITE_SOCKET_URL=https://your-backend.up.railway.app
 ```
 
-Frontend commands are defined in `apps/frontend/railway.json`:
+Sau khi API deploy thành công, mở shell của dịch vụ API và chạy seed nếu cần:
 
-```text
-Build Command: npm install && npm run build
-Start Command: npx vite preview --host 0.0.0.0 --port $PORT
-Health Check Path: /
+```bash
+npm run seed
 ```
 
-### 6. Update Backend CORS
-
-After Railway gives the final frontend URL, update backend env vars:
+Kiểm tra API:
 
 ```text
-CLIENT_URL=https://your-frontend.up.railway.app
-CLIENT_URLS=https://your-frontend.up.railway.app,http://localhost:5173
+https://your-backend.up.railway.app/health
 ```
 
-Redeploy backend after changing these values.
+Kết quả đúng:
 
-### Production Notes
+```json
+{"ok":true}
+```
 
-- Local `/uploads` on Railway is ephemeral unless you configure persistent storage. For real uploads, switch to Cloudinary or S3.
-- `db:deploy` currently uses `prisma db push` for simple deployment. For long-term production, generate Prisma migrations and switch to `prisma migrate deploy`.
+## Deploy Render + Vercel
 
-## Render And Vercel Alternative
+Mô hình khuyến nghị:
 
-The repo still includes `render.yaml` and `vercel.json` if you want to deploy backend on Render and frontend on Vercel instead. For Railway + MySQL, use the Railway steps above.
+- API chạy trên Render.
+- Giao diện chạy trên Vercel.
+- Cơ sở dữ liệu dùng MySQL ngoài, ví dụ Railway MySQL, PlanetScale hoặc dịch vụ MySQL tương thích.
+
+Lưu ý quan trọng: schema Prisma hiện dùng `provider = "mysql"`, nên không dùng trực tiếp Render PostgreSQL database.
+
+### API trên Render
+
+Repo đã có `render.yaml`. Khi tạo Blueprint hoặc Web Service, cấu hình:
+
+```text
+Thư mục gốc: apps/backend
+Lệnh build: npm install && npm run prisma:generate && npm run build && npm run prisma:deploy
+Lệnh chạy: npm start
+Đường dẫn kiểm tra sức khỏe: /health
+```
+
+Đặt biến môi trường API giống phần trên, đặc biệt:
+
+```text
+DATABASE_URL=mysql://user:password@host:3306/database
+CLIENT_URL=https://your-vercel-app.vercel.app
+CLIENT_URLS=https://your-vercel-app.vercel.app,http://localhost:5173
+```
+
+### Giao diện trên Vercel
+
+Repo đã có `vercel.json`. Vercel sẽ build frontend bằng:
+
+```text
+npm run build -w apps/frontend
+```
+
+Đặt biến môi trường frontend trên Vercel:
+
+```text
+VITE_API_URL=https://your-render-api.onrender.com/api
+VITE_SOCKET_URL=https://your-render-api.onrender.com
+```
+
+Sau khi Vercel cấp domain thật, cập nhật `CLIENT_URL` và `CLIENT_URLS` ở API rồi redeploy API.
+
+## Ghi chú production
+
+- Thư mục `uploads` trên Render/Railway có thể bị mất khi redeploy nếu không cấu hình persistent disk. Với production thật, nên chuyển upload sang S3, Cloudinary hoặc dịch vụ tương tự.
+- Script `db:deploy` hiện dùng `prisma db push` để deploy nhanh. Khi dự án ổn định, nên tạo Prisma migration và chuyển sang `prisma migrate deploy`.
+- Frontend đã chia chunk vendor trong Vite để bundle dễ cache hơn khi deploy.

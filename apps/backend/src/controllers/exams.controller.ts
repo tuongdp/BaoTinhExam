@@ -54,12 +54,12 @@ export const getExam = asyncHandler(async (req, res) => {
     where: { id: Number(req.params.id) },
     include: { examItems: { include: { question: { include: { topics: true } } }, orderBy: { order: "asc" } } }
   });
-  if (!item) throw new HttpError(404, "Exam not found");
+  if (!item) throw new HttpError(404, "Không tìm thấy đề thi");
   res.json(item);
 });
 
 export const createExam = asyncHandler(async (req, res) => {
-  if (!req.user) throw new HttpError(401, "Unauthorized");
+  if (!req.user) throw new HttpError(401, "Bạn chưa đăng nhập");
   const data = req.body as ExamBody;
   const exam = await prisma.exam.create({
     data: {

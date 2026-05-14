@@ -9,12 +9,12 @@ const canAccessSubmission = (reqUser: Express.UserContext | undefined, ownerId: 
 };
 
 export const startSubmission = asyncHandler(async (req, res) => {
-  if (!req.user) throw new HttpError(401, "Unauthorized");
+  if (!req.user) throw new HttpError(401, "Bạn chưa đăng nhập");
   const room = await prisma.examRoom.findUnique({ where: { id: req.body.roomId }, include: { exam: true } });
-  if (!room) throw new HttpError(404, "Room not found");
+  if (!room) throw new HttpError(404, "Không tìm thấy phòng thi");
 
   const attempts = await prisma.submission.count({ where: { userId: req.user.id, room: { examId: room.examId }, submittedAt: { not: null } } });
-  if (attempts >= room.exam.maxAttempts) throw new HttpError(403, "Maximum attempts reached");
+  if (attempts >= room.exam.maxAttempts) throw new HttpError(403, "Bạn đã hết số lượt làm bài");
 
   const submission = await prisma.submission.upsert({
     where: { roomId_userId: { roomId: room.id, userId: req.user.id } },
@@ -26,8 +26,8 @@ export const startSubmission = asyncHandler(async (req, res) => {
 
 export const saveSubmission = asyncHandler(async (req, res) => {
   const current = await prisma.submission.findUnique({ where: { id: Number(req.params.id) } });
-  if (!current) throw new HttpError(404, "Submission not found");
-  if (!canAccessSubmission(req.user, current.userId)) throw new HttpError(403, "Forbidden");
+  if (!current) throw new HttpError(404, "Không tìm thấy bài làm");
+  if (!canAccessSubmission(req.user, current.userId)) throw new HttpError(403, "Bạn không có quyền xem bài làm này");
   const submission = await prisma.submission.update({
     where: { id: Number(req.params.id) },
     data: { answers: req.body.answers }
@@ -41,9 +41,9 @@ export const submitSubmission = asyncHandler(async (req, res) => {
     where: { id: Number(req.params.id) },
     include: { room: { include: { exam: { include: { examItems: { include: { question: true } } } } } } }
   });
-  if (!existing) throw new HttpError(404, "Submission not found");
-  if (!canAccessSubmission(req.user, existing.userId)) throw new HttpError(403, "Forbidden");
-  if (existing.submittedAt) throw new HttpError(409, "Submission already submitted");
+  if (!existing) throw new HttpError(404, "Không tìm thấy bài làm");
+  if (!canAccessSubmission(req.user, existing.userId)) throw new HttpError(403, "Bạn không có quyền xem bài làm này");
+  if (existing.submittedAt) throw new HttpError(409, "Bài làm đã được nộp");
 
   const result = gradeObjective(existing.room.exam, existing.answers as Record<string, unknown>);
   const submission = await prisma.submission.update({
@@ -66,8 +66,8 @@ export const getSubmission = asyncHandler(async (req, res) => {
     where: { id: Number(req.params.id) },
     include: { room: { include: { exam: true } }, gradedItems: true }
   });
-  if (!item) throw new HttpError(404, "Submission not found");
-  if (!canAccessSubmission(req.user, item.userId)) throw new HttpError(403, "Forbidden");
+  if (!item) throw new HttpError(404, "Không tìm thấy bài làm");
+  if (!canAccessSubmission(req.user, item.userId)) throw new HttpError(403, "Bạn không có quyền xem bài làm này");
   res.json(item);
 });
 
@@ -76,8 +76,8 @@ export const reviewSubmission = asyncHandler(async (req, res) => {
     where: { id: Number(req.params.id) },
     include: { room: { include: { exam: { include: { examItems: { include: { question: true }, orderBy: { order: "asc" } } } } } }, gradedItems: true }
   });
-  if (!item) throw new HttpError(404, "Submission not found");
-  if (!canAccessSubmission(req.user, item.userId)) throw new HttpError(403, "Forbidden");
+  if (!item) throw new HttpError(404, "Không tìm thấy bài làm");
+  if (!canAccessSubmission(req.user, item.userId)) throw new HttpError(403, "Bạn không có quyền xem bài làm này");
   if (!item.room.exam.showAnswerAfter) {
     res.json({ ...item, room: { ...item.room, exam: { ...item.room.exam, examItems: [] } } });
     return;
@@ -86,7 +86,7 @@ export const reviewSubmission = asyncHandler(async (req, res) => {
 });
 
 export const gradeSubmission = asyncHandler(async (req, res) => {
-  if (!req.user) throw new HttpError(401, "Unauthorized");
+  if (!req.user) throw new HttpError(401, "Bạn chưa đăng nhập");
   const items = req.body.items as { questionId: number; score: number; feedback?: string }[];
   const submissionId = Number(req.params.id);
   await prisma.$transaction(
@@ -118,8 +118,8 @@ export const listRoomSubmissions = asyncHandler(async (req, res) => {
 
 export const incrementTabSwitch = asyncHandler(async (req, res) => {
   const current = await prisma.submission.findUnique({ where: { id: Number(req.params.id) } });
-  if (!current) throw new HttpError(404, "Submission not found");
-  if (!canAccessSubmission(req.user, current.userId)) throw new HttpError(403, "Forbidden");
+  if (!current) throw new HttpError(404, "Không tìm thấy bài làm");
+  if (!canAccessSubmission(req.user, current.userId)) throw new HttpError(403, "Bạn không có quyền xem bài làm này");
   const submission = await prisma.submission.update({
     where: { id: Number(req.params.id) },
     data: { tabSwitches: { increment: 1 } }

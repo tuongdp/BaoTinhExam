@@ -15,7 +15,7 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const message = error.response?.data?.message ?? "Request failed";
+    const message = error.response?.data?.message ?? "Yêu cầu thất bại";
     toast.error(message);
     return Promise.reject(error);
   }

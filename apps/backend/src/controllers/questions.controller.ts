@@ -41,12 +41,12 @@ export const listQuestions = asyncHandler(async (req, res) => {
 
 export const getQuestion = asyncHandler(async (req, res) => {
   const item = await prisma.question.findUnique({ where: { id: Number(req.params.id) }, include: { topics: true } });
-  if (!item) throw new HttpError(404, "Question not found");
+  if (!item) throw new HttpError(404, "Không tìm thấy câu hỏi");
   res.json(item);
 });
 
 export const createQuestion = asyncHandler(async (req, res) => {
-  if (!req.user) throw new HttpError(401, "Unauthorized");
+  if (!req.user) throw new HttpError(401, "Bạn chưa đăng nhập");
   const data = req.body as {
     type: QuestionType;
     content: string;

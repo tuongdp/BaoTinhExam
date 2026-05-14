@@ -21,7 +21,7 @@ export const getRoom = asyncHandler(async (req, res) => {
     where: { id: Number(req.params.id) },
     include: { exam: { include: { examItems: { include: { question: true }, orderBy: { order: "asc" } } } }, users: { include: { user: true } } }
   });
-  if (!room) throw new HttpError(404, "Room not found");
+  if (!room) throw new HttpError(404, "Không tìm thấy phòng thi");
   res.json(room);
 });
 
@@ -52,9 +52,9 @@ export const endRoom = asyncHandler(async (req, res) => {
 });
 
 export const joinRoom = asyncHandler(async (req, res) => {
-  if (!req.user) throw new HttpError(401, "Unauthorized");
+  if (!req.user) throw new HttpError(401, "Bạn chưa đăng nhập");
   const room = await prisma.examRoom.findUnique({ where: { code: req.body.code } });
-  if (!room) throw new HttpError(404, "Room not found");
+  if (!room) throw new HttpError(404, "Không tìm thấy phòng thi");
   await prisma.examRoomUser.upsert({
     where: { roomId_userId: { roomId: room.id, userId: req.user.id } },
     update: {},

@@ -2,6 +2,7 @@ import { RotateCcw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Button } from "../../components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
 import { api } from "../../services/api";
 import type { Submission } from "../../types";
 
@@ -13,23 +14,27 @@ export const ResultPage = () => {
     void api.get<Submission>(`/submissions/${submissionId}`).then(({ data }) => setSubmission(data));
   }, [submissionId]);
 
-  if (!submission) return <div className="p-6">Loading result...</div>;
+  if (!submission) return <div className="p-6">Đang tải kết quả...</div>;
 
   return (
     <main className="grid min-h-screen place-items-center bg-background p-4">
-      <section className="w-full max-w-md rounded-md border border-border p-6 text-center">
-        <h1 className="text-2xl font-semibold">Exam result</h1>
-        <div className="my-6 text-5xl font-semibold">
-          {submission.score ?? 0}/{submission.totalPoints ?? 0}
-        </div>
-        <p className="text-sm text-slate-500 dark:text-slate-400">Manual grading may update this score if the exam includes essay questions.</p>
-        <Link to="/exam/join">
-          <Button className="mt-6 bg-slate-900 dark:bg-slate-700">
-            <RotateCcw size={18} />
-            Back to rooms
+      <Card className="w-full max-w-md text-center">
+        <CardHeader>
+          <CardTitle className="text-2xl">Kết quả bài thi</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-6 text-5xl font-semibold">
+            {submission.score ?? 0}/{submission.totalPoints ?? 0}
+          </div>
+          <CardDescription>Điểm có thể được cập nhật sau khi chấm tự luận.</CardDescription>
+          <Button asChild className="mt-6" variant="secondary">
+            <Link to="/exam/join">
+              <RotateCcw size={18} />
+              Quay lại phòng thi
+            </Link>
           </Button>
-        </Link>
-      </section>
+        </CardContent>
+      </Card>
     </main>
   );
 };

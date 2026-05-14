@@ -43,7 +43,7 @@ export const getUser = asyncHandler(async (req, res) => {
       submissions: { include: { room: { include: { exam: true } } }, orderBy: { startedAt: "desc" } }
     }
   });
-  if (!user) throw new HttpError(404, "User not found");
+  if (!user) throw new HttpError(404, "Không tìm thấy người dùng");
   res.json(user);
 });
 
@@ -69,7 +69,7 @@ export const deleteUser = asyncHandler(async (req, res) => {
 
 export const toggleUser = asyncHandler(async (req, res) => {
   const current = await prisma.user.findUnique({ where: { id: Number(req.params.id) } });
-  if (!current) throw new HttpError(404, "User not found");
+  if (!current) throw new HttpError(404, "Không tìm thấy người dùng");
   const user = await prisma.user.update({ where: { id: current.id }, data: { isActive: !current.isActive } });
   res.json({ id: user.id, isActive: user.isActive });
 });

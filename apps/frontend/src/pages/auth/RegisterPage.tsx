@@ -3,6 +3,7 @@ import { FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "../../components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { api } from "../../services/api";
 
@@ -18,7 +19,7 @@ export const RegisterPage = () => {
     setLoading(true);
     try {
       await api.post("/auth/register", { name, email, password });
-      toast.success("Account created");
+      toast.success("Đã tạo tài khoản");
       navigate("/login");
     } finally {
       setLoading(false);
@@ -27,22 +28,26 @@ export const RegisterPage = () => {
 
   return (
     <main className="grid min-h-screen place-items-center bg-muted/35 p-4">
-      <form onSubmit={submit} className="w-full max-w-sm space-y-4 rounded-md border border-border bg-background p-5 shadow-sm sm:p-6">
-        <div>
-          <h1 className="text-2xl font-semibold">Create account</h1>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Register as a candidate.</p>
-        </div>
-        <Input required value={name} onChange={(event) => setName(event.target.value)} placeholder="Full name" />
-        <Input required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Email" type="email" />
-        <Input required minLength={8} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Password" type="password" />
-        <Button disabled={loading} className="w-full">
-          <UserPlus size={18} />
-          {loading ? "Creating..." : "Create account"}
-        </Button>
-        <Link className="block text-center text-sm text-primary" to="/login">
-          Back to sign in
-        </Link>
-      </form>
+      <Card className="w-full max-w-sm">
+        <CardHeader>
+          <CardTitle className="text-2xl">Tạo tài khoản</CardTitle>
+          <CardDescription>Đăng ký tài khoản thí sinh.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={submit} className="space-y-4">
+            <Input required value={name} onChange={(event) => setName(event.target.value)} placeholder="Họ và tên" />
+            <Input required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Email" type="email" />
+            <Input required minLength={8} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Mật khẩu" type="password" />
+            <Button disabled={loading} className="w-full">
+              <UserPlus size={18} />
+              {loading ? "Đang tạo..." : "Tạo tài khoản"}
+            </Button>
+            <Button asChild variant="link" className="w-full">
+              <Link to="/login">Quay lại đăng nhập</Link>
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </main>
   );
 };

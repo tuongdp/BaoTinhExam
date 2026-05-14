@@ -1,8 +1,14 @@
 import { CheckCircle, Eye, Plus, X } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
+import { Card, CardContent } from "../../components/ui/card";
+import { Checkbox } from "../../components/ui/checkbox";
 import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
+import { Textarea } from "../../components/ui/textarea";
 import { api } from "../../services/api";
 import type { Exam, Page, Question } from "../../types";
 
@@ -45,7 +51,7 @@ export const ExamsPage = () => {
       isPublished: true,
       items
     });
-    toast.success("Exam created");
+    toast.success("Đã tạo đề thi");
     setTitle("");
     setDescription("");
     setSelected(new Set());
@@ -56,70 +62,75 @@ export const ExamsPage = () => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">Exams</h1>
+        <h1 className="text-2xl font-semibold">Đề thi</h1>
         <Button className="shrink-0" onClick={() => setOpen((value) => !value)}>
           {open ? <X size={18} /> : <Plus size={18} />}
-          <span className="hidden sm:inline">{open ? "Close" : "New exam"}</span>
+          <span className="hidden sm:inline">{open ? "Đóng" : "Thêm đề thi"}</span>
         </Button>
       </div>
 
       {open ? (
-        <form onSubmit={submit} className="space-y-3 rounded-md border border-border p-3 sm:p-4">
-          <div className="grid gap-2 sm:grid-cols-2">
-            <Input required value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Exam title" />
-            <Input type="number" min={1} value={duration} onChange={(event) => setDuration(Number(event.target.value))} placeholder="Duration minutes" />
-          </div>
-          <textarea
-            className="min-h-20 w-full rounded-md border border-border bg-background p-3 text-sm outline-none focus:ring-2 focus:ring-primary"
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            placeholder="Description"
-          />
-          <div className="grid gap-2 sm:grid-cols-2">
-            <Input type="number" min={0} step={0.25} value={passScore} onChange={(event) => setPassScore(Number(event.target.value))} placeholder="Pass score" />
-            <select className="h-10 rounded-md border border-border bg-background px-3 text-sm" value={mode} onChange={(event) => setMode(event.target.value as Exam["mode"])}>
-              <option value="ALL_AT_ONCE">All at once</option>
-              <option value="ONE_BY_ONE">One by one</option>
-            </select>
-          </div>
-          <div className="max-h-64 space-y-2 overflow-auto rounded-md border border-border p-2">
-            {questions.length === 0 ? <p className="p-2 text-sm text-slate-500 dark:text-slate-400">Create questions first.</p> : null}
-            {questions.map((question) => (
-              <label key={question.id} className="flex cursor-pointer items-start gap-3 rounded-md p-2 hover:bg-muted">
-                <input
-                  className="mt-1"
-                  type="checkbox"
-                  checked={selected.has(question.id)}
-                  onChange={(event) =>
-                    setSelected((prev) => new Set(event.target.checked ? [...prev, question.id] : [...prev].filter((id) => id !== question.id)))
-                  }
-                />
-                <span className="text-sm">{question.content}</span>
-              </label>
-            ))}
-          </div>
-          <Button disabled={selected.size === 0} className="w-full sm:w-auto">
-            <CheckCircle size={18} />
-            Publish exam
-          </Button>
-        </form>
+        <Card>
+          <CardContent className="p-3 sm:p-4">
+            <form onSubmit={submit} className="space-y-3">
+              <div className="grid gap-2 sm:grid-cols-2">
+                <Input required value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Tên đề thi" />
+                <Input type="number" min={1} value={duration} onChange={(event) => setDuration(Number(event.target.value))} placeholder="Thời lượng phút" />
+              </div>
+              <Textarea className="min-h-20" value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Mô tả" />
+              <div className="grid gap-2 sm:grid-cols-2">
+                <Input type="number" min={0} step={0.25} value={passScore} onChange={(event) => setPassScore(Number(event.target.value))} placeholder="Điểm đạt" />
+                <Select value={mode} onValueChange={(value) => setMode(value as Exam["mode"])}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL_AT_ONCE">Hiển thị tất cả</SelectItem>
+                    <SelectItem value="ONE_BY_ONE">Từng câu một</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="max-h-64 space-y-2 overflow-auto rounded-md border border-input p-2">
+                {questions.length === 0 ? <p className="p-2 text-sm text-muted-foreground">Hãy tạo câu hỏi trước.</p> : null}
+                {questions.map((question) => (
+                  <Label key={question.id} className="flex cursor-pointer items-start gap-3 rounded-md p-2 hover:bg-accent hover:text-accent-foreground">
+                    <Checkbox
+                      className="mt-1"
+                      checked={selected.has(question.id)}
+                      onCheckedChange={(checked) =>
+                        setSelected((prev) => new Set(checked ? [...prev, question.id] : [...prev].filter((id) => id !== question.id)))
+                      }
+                    />
+                    <span className="text-sm">{question.content}</span>
+                  </Label>
+                ))}
+              </div>
+              <Button disabled={selected.size === 0} className="w-full sm:w-auto">
+                <CheckCircle size={18} />
+                Xuất bản đề thi
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       ) : null}
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {exams.map((exam) => (
-          <article key={exam.id} className="rounded-md border border-border p-4">
+          <Card key={exam.id}>
+            <CardContent className="p-4">
             <div className="flex items-start justify-between">
               <div>
                 <h2 className="font-semibold">{exam.title}</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400">{exam.duration} minutes</p>
+                <p className="text-sm text-muted-foreground">{exam.duration} phút</p>
               </div>
-              <span className="rounded-md bg-muted px-2 py-1 text-xs">{exam.isPublished ? "Published" : "Draft"}</span>
+              <Badge variant={exam.isPublished ? "default" : "secondary"}>{exam.isPublished ? "Đã xuất bản" : "Bản nháp"}</Badge>
             </div>
-            <Button className="mt-4 h-9 bg-slate-900 dark:bg-slate-700">
+            <Button className="mt-4" size="sm" variant="secondary">
               <Eye size={16} />
-              Preview
+              Xem trước
             </Button>
-          </article>
+            </CardContent>
+          </Card>
         ))}
       </div>
     </div>

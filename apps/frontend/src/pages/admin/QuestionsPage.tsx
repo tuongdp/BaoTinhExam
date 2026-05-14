@@ -1,10 +1,32 @@
 import { Plus, X } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
+import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
+import { Textarea } from "../../components/ui/textarea";
 import { api } from "../../services/api";
 import type { Page, Question } from "../../types";
+
+const difficultyLabel: Record<Question["difficulty"], string> = {
+  EASY: "Dễ",
+  MEDIUM: "Trung bình",
+  HARD: "Khó"
+};
+
+const questionTypeLabel: Record<Question["type"], string> = {
+  MULTIPLE_CHOICE: "Trắc nghiệm",
+  MULTIPLE_SELECT: "Chọn nhiều",
+  TRUE_FALSE: "Đúng/Sai",
+  SHORT_ANSWER: "Trả lời ngắn",
+  ESSAY: "Tự luận",
+  FILL_IN_BLANK: "Điền khuyết",
+  IMAGE_CHOICE: "Chọn ảnh",
+  VIDEO_CHOICE: "Chọn video",
+  AUDIO_CHOICE: "Chọn âm thanh"
+};
 
 const defaultOptions = [
   { id: "A", text: "" },
@@ -21,7 +43,7 @@ export const QuestionsPage = () => {
   const [correctAnswer, setCorrectAnswer] = useState("A");
   const [difficulty, setDifficulty] = useState<Question["difficulty"]>("MEDIUM");
   const [points, setPoints] = useState(1);
-  const [topic, setTopic] = useState("General");
+  const [topic, setTopic] = useState("Chung");
 
   const load = () => void api.get<Page<Question>>("/questions").then(({ data }) => setQuestions(data.items));
   useEffect(load, []);
@@ -37,7 +59,7 @@ export const QuestionsPage = () => {
       points,
       topics: topic.split(",").map((item) => item.trim()).filter(Boolean)
     });
-    toast.success("Question created");
+    toast.success("Đã tạo câu hỏi");
     setContent("");
     setOptions(defaultOptions);
     setCorrectAnswer("A");
@@ -48,66 +70,76 @@ export const QuestionsPage = () => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">Question Bank</h1>
+        <h1 className="text-2xl font-semibold">Ngân hàng câu hỏi</h1>
         <Button className="shrink-0" onClick={() => setOpen((value) => !value)}>
           {open ? <X size={18} /> : <Plus size={18} />}
-          <span className="hidden sm:inline">{open ? "Close" : "New question"}</span>
+          <span className="hidden sm:inline">{open ? "Đóng" : "Thêm câu hỏi"}</span>
         </Button>
       </div>
 
       {open ? (
-        <form onSubmit={submit} className="space-y-3 rounded-md border border-border p-3 sm:p-4">
-          <textarea
-            required
-            className="min-h-24 w-full rounded-md border border-border bg-background p-3 text-sm outline-none focus:ring-2 focus:ring-primary"
-            value={content}
-            onChange={(event) => setContent(event.target.value)}
-            placeholder="Question content"
-          />
-          <div className="grid gap-2 sm:grid-cols-2">
-            {options.map((option, index) => (
-              <Input
-                key={option.id}
-                required
-                value={option.text}
-                onChange={(event) => setOptions((prev) => prev.map((item, itemIndex) => (itemIndex === index ? { ...item, text: event.target.value } : item)))}
-                placeholder={`Option ${option.id}`}
-              />
-            ))}
-          </div>
-          <div className="grid gap-2 sm:grid-cols-4">
-            <select className="h-10 rounded-md border border-border bg-background px-3 text-sm" value={correctAnswer} onChange={(event) => setCorrectAnswer(event.target.value)}>
-              {options.map((option) => (
-                <option key={option.id} value={option.id}>
-                  Correct {option.id}
-                </option>
-              ))}
-            </select>
-            <select className="h-10 rounded-md border border-border bg-background px-3 text-sm" value={difficulty} onChange={(event) => setDifficulty(event.target.value as Question["difficulty"])}>
-              <option value="EASY">Easy</option>
-              <option value="MEDIUM">Medium</option>
-              <option value="HARD">Hard</option>
-            </select>
-            <Input type="number" min={0.25} step={0.25} value={points} onChange={(event) => setPoints(Number(event.target.value))} />
-            <Input value={topic} onChange={(event) => setTopic(event.target.value)} placeholder="Topics" />
-          </div>
-          <Button className="w-full sm:w-auto">
-            <Plus size={18} />
-            Save question
-          </Button>
-        </form>
+        <Card>
+          <CardContent className="p-3 sm:p-4">
+            <form onSubmit={submit} className="space-y-3">
+              <Textarea required value={content} onChange={(event) => setContent(event.target.value)} placeholder="Nội dung câu hỏi" />
+              <div className="grid gap-2 sm:grid-cols-2">
+                {options.map((option, index) => (
+                  <Input
+                    key={option.id}
+                    required
+                    value={option.text}
+                    onChange={(event) => setOptions((prev) => prev.map((item, itemIndex) => (itemIndex === index ? { ...item, text: event.target.value } : item)))}
+                    placeholder={`Đáp án ${option.id}`}
+                  />
+                ))}
+              </div>
+              <div className="grid gap-2 sm:grid-cols-4">
+                <Select value={correctAnswer} onValueChange={setCorrectAnswer}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {options.map((option) => (
+                      <SelectItem key={option.id} value={option.id}>
+                        Đáp án đúng {option.id}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={difficulty} onValueChange={(value) => setDifficulty(value as Question["difficulty"])}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="EASY">Dễ</SelectItem>
+                    <SelectItem value="MEDIUM">Trung bình</SelectItem>
+                    <SelectItem value="HARD">Khó</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input type="number" min={0.25} step={0.25} value={points} onChange={(event) => setPoints(Number(event.target.value))} />
+                <Input value={topic} onChange={(event) => setTopic(event.target.value)} placeholder="Chủ đề" />
+              </div>
+              <Button className="w-full sm:w-auto">
+                <Plus size={18} />
+                Lưu câu hỏi
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       ) : null}
 
       <div className="grid gap-3">
         {questions.map((question) => (
-          <article key={question.id} className="rounded-md border border-border p-4">
-            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-              <span>{question.type}</span>
-              <span>{question.difficulty}</span>
-              <span>{question.points} pts</span>
+          <Card key={question.id}>
+            <CardContent className="p-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="secondary">{questionTypeLabel[question.type]}</Badge>
+              <Badge variant="outline">{difficultyLabel[question.difficulty]}</Badge>
+              <Badge variant="outline">{question.points} điểm</Badge>
             </div>
             <h2 className="mt-2 font-medium">{question.content}</h2>
-          </article>
+            </CardContent>
+          </Card>
         ))}
       </div>
     </div>

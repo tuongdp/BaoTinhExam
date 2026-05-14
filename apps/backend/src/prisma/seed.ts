@@ -9,20 +9,20 @@ const main = async () => {
     update: {},
     create: {
       email: "admin@examhub.local",
-      name: "ExamHub Admin",
+      name: "Quản trị ExamHub",
       password,
       role: Role.SUPER_ADMIN
     }
   });
 
   const topic = await prisma.topic.upsert({
-    where: { name: "General Knowledge" },
+    where: { name: "Kiến thức chung" },
     update: {},
-    create: { name: "General Knowledge" }
+    create: { name: "Kiến thức chung" }
   });
 
   const existingQuestion = await prisma.question.findFirst({
-    where: { content: "Which HTTP status code means Unauthorized?" }
+    where: { content: "Mã trạng thái HTTP nào có nghĩa là chưa được xác thực?" }
   });
 
   const question =
@@ -30,7 +30,7 @@ const main = async () => {
     (await prisma.question.create({
       data: {
         type: QuestionType.MULTIPLE_CHOICE,
-        content: "Which HTTP status code means Unauthorized?",
+        content: "Mã trạng thái HTTP nào có nghĩa là chưa được xác thực?",
         options: [
           { id: "A", text: "200" },
           { id: "B", text: "401" },
@@ -38,7 +38,7 @@ const main = async () => {
           { id: "D", text: "500" }
         ],
         correctAnswer: "B",
-        explanation: "401 indicates the request lacks valid authentication credentials.",
+        explanation: "401 cho biết yêu cầu thiếu thông tin xác thực hợp lệ.",
         difficulty: Difficulty.EASY,
         points: 1,
         createdById: admin.id,
@@ -46,13 +46,13 @@ const main = async () => {
       }
     }));
 
-  const existingExam = await prisma.exam.findFirst({ where: { title: "Sample Exam" } });
+  const existingExam = await prisma.exam.findFirst({ where: { title: "Đề thi mẫu" } });
   const exam =
     existingExam ??
     (await prisma.exam.create({
       data: {
-        title: "Sample Exam",
-        description: "Seeded exam for smoke testing.",
+        title: "Đề thi mẫu",
+        description: "Đề thi mẫu dùng để kiểm tra nhanh hệ thống.",
         duration: 30,
         passScore: 1,
         isPublished: true,
@@ -64,7 +64,7 @@ const main = async () => {
   await prisma.examRoom.upsert({
     where: { code: "ABC123" },
     update: { examId: exam.id },
-    create: { name: "Sample Room", code: "ABC123", examId: exam.id }
+    create: { name: "Phòng thi mẫu", code: "ABC123", examId: exam.id }
   });
 };
 
