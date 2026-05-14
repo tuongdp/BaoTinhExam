@@ -16,9 +16,9 @@ services:
       - key: DATABASE_URL
         sync: false
       - key: CLIENT_URL
-        value: https://bao-tinh-exam-backend.vercel.app
+        value: https://bao-tinh-exam.vercel.app
       - key: CLIENT_URLS
-        value: https://bao-tinh-exam-backend.vercel.app,http://localhost:5173
+        value: https://bao-tinh-exam.vercel.app,https://bao-tinh-exam-backend.vercel.app,http://localhost:5173
       - key: JWT_ACCESS_SECRET
         generateValue: true
       - key: JWT_REFRESH_SECRET

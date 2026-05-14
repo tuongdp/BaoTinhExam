@@ -26,6 +26,7 @@ app.use(cookieParser());
 app.use(`/${env.UPLOAD_DIR}`, express.static(env.UPLOAD_DIR));
 
 app.get("/health", (_req, res) => res.json({ ok: true }));
+app.use("/auth", authRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/questions", questionsRoutes);
