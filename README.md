@@ -118,6 +118,8 @@ VITE_API_URL=https://your-backend.up.railway.app/api
 VITE_SOCKET_URL=https://your-backend.up.railway.app
 ```
 
+Nếu Railway hoặc Render build API báo thiếu enum/model Prisma như `Role`, `RoomStatus`, `QuestionType`, kiểm tra service đang dùng commit mới nhất. Script build API đã tự chạy `prisma generate --schema=src/prisma/schema.prisma` trước khi TypeScript compile.
+
 Sau khi API deploy thành công, mở shell của dịch vụ API và chạy seed nếu cần:
 
 ```bash
