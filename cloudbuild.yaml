@@ -2,6 +2,7 @@ substitutions:
   _REGION: asia-southeast1
   _BACKEND_SERVICE: examhub-api
   _FRONTEND_SERVICE: examhub-web
+  _MIGRATE_JOB: examhub-migrate
   _CLOUDSQL_INSTANCE: ""
   _CLIENT_URL: ""
   _CLIENT_URLS: ""
@@ -43,6 +44,31 @@ steps:
     args:
       - push
       - $_REGION-docker.pkg.dev/$PROJECT_ID/examhub/frontend:$COMMIT_SHA
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - run
+      - jobs
+      - deploy
+      - $_MIGRATE_JOB
+      - --image=$_REGION-docker.pkg.dev/$PROJECT_ID/examhub/backend:$COMMIT_SHA
+      - --region=$_REGION
+      - --set-cloudsql-instances=$_CLOUDSQL_INSTANCE
+      - --set-env-vars=NODE_ENV=production,PORT=8080,CLIENT_URL=$_CLIENT_URL,CLIENT_URLS=$_CLIENT_URLS,ACCESS_TOKEN_TTL=15m,REFRESH_TOKEN_DAYS=7,UPLOAD_DIR=uploads
+      - --set-secrets=DATABASE_URL=$_DATABASE_SECRET:latest,JWT_ACCESS_SECRET=$_JWT_ACCESS_SECRET:latest,JWT_REFRESH_SECRET=$_JWT_REFRESH_SECRET:latest
+      - --command=/bin/sh
+      - --args=-c,npm run prisma:deploy && npm run seed
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - run
+      - jobs
+      - execute
+      - $_MIGRATE_JOB
+      - --region=$_REGION
+      - --wait
 
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk
     entrypoint: gcloud

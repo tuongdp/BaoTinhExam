@@ -53,6 +53,32 @@ The repo includes:
 - `apps/backend/Dockerfile`
 - `apps/frontend/Dockerfile`
 - `apps/frontend/nginx.conf`
+- `scripts/deploy-gcp.ps1`
+
+### Fast Path
+
+After installing Google Cloud CLI and logging in, run:
+
+```powershell
+.\scripts\deploy-gcp.ps1 `
+  -ProjectId "YOUR_PROJECT_ID" `
+  -DbPassword "change-this-password"
+```
+
+The script will create the required Google Cloud resources, deploy backend/frontend to Cloud Run, run database schema push, and seed the default admin account.
+
+Install Google Cloud CLI on Windows:
+
+```powershell
+winget install Google.CloudSDK --accept-source-agreements --accept-package-agreements
+```
+
+Then restart your terminal and run:
+
+```powershell
+gcloud auth login
+gcloud auth application-default login
+```
 
 ### 1. Configure Project
 

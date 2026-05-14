@@ -21,39 +21,50 @@ const main = async () => {
     create: { name: "General Knowledge" }
   });
 
-  const question = await prisma.question.create({
-    data: {
-      type: QuestionType.MULTIPLE_CHOICE,
-      content: "Which HTTP status code means Unauthorized?",
-      options: [
-        { id: "A", text: "200" },
-        { id: "B", text: "401" },
-        { id: "C", text: "404" },
-        { id: "D", text: "500" }
-      ],
-      correctAnswer: "B",
-      explanation: "401 indicates the request lacks valid authentication credentials.",
-      difficulty: Difficulty.EASY,
-      points: 1,
-      createdById: admin.id,
-      topics: { connect: { id: topic.id } }
-    }
+  const existingQuestion = await prisma.question.findFirst({
+    where: { content: "Which HTTP status code means Unauthorized?" }
   });
 
-  const exam = await prisma.exam.create({
-    data: {
-      title: "Sample Exam",
-      description: "Seeded exam for smoke testing.",
-      duration: 30,
-      passScore: 1,
-      isPublished: true,
-      createdById: admin.id,
-      examItems: { create: { questionId: question.id, order: 1, points: 1 } }
-    }
-  });
+  const question =
+    existingQuestion ??
+    (await prisma.question.create({
+      data: {
+        type: QuestionType.MULTIPLE_CHOICE,
+        content: "Which HTTP status code means Unauthorized?",
+        options: [
+          { id: "A", text: "200" },
+          { id: "B", text: "401" },
+          { id: "C", text: "404" },
+          { id: "D", text: "500" }
+        ],
+        correctAnswer: "B",
+        explanation: "401 indicates the request lacks valid authentication credentials.",
+        difficulty: Difficulty.EASY,
+        points: 1,
+        createdById: admin.id,
+        topics: { connect: { id: topic.id } }
+      }
+    }));
 
-  await prisma.examRoom.create({
-    data: { name: "Sample Room", code: "ABC123", examId: exam.id }
+  const existingExam = await prisma.exam.findFirst({ where: { title: "Sample Exam" } });
+  const exam =
+    existingExam ??
+    (await prisma.exam.create({
+      data: {
+        title: "Sample Exam",
+        description: "Seeded exam for smoke testing.",
+        duration: 30,
+        passScore: 1,
+        isPublished: true,
+        createdById: admin.id,
+        examItems: { create: { questionId: question.id, order: 1, points: 1 } }
+      }
+    }));
+
+  await prisma.examRoom.upsert({
+    where: { code: "ABC123" },
+    update: { examId: exam.id },
+    create: { name: "Sample Room", code: "ABC123", examId: exam.id }
   });
 };
 
