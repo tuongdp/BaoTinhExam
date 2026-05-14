@@ -4,7 +4,7 @@ import { cn } from "../../lib/utils";
 export const Textarea = ({ className, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) => (
   <textarea
     className={cn(
-      "flex min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+      "flex min-h-24 w-full rounded border border-input bg-background px-4 py-3 text-sm text-[#202124] placeholder:text-[#9AA0A6] hover:border-[#80868B] focus-visible:border-primary disabled:cursor-not-allowed disabled:bg-[#F3F3F3] disabled:text-[#9AA0A6] disabled:opacity-60",
       className
     )}
     {...props}

@@ -16,9 +16,9 @@ export const AppLayout = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background pb-16 lg:pb-0">
-      <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-border bg-muted/35 p-4 lg:block">
-        <div className="mb-6 text-xl font-semibold">ExamHub</div>
+    <div className="min-h-screen bg-[#F8F9FA] pb-16 lg:pb-0">
+      <aside className="fixed inset-y-0 left-0 hidden w-[280px] border-r border-border bg-[#F8F9FA] py-4 lg:block">
+        <div className="mb-6 px-5 text-xl font-semibold text-[#202124]">BaoTinh Exam</div>
         <nav className="space-y-1">
           {links.map((item) => (
             <NavLink
@@ -26,7 +26,9 @@ export const AppLayout = () => {
               to={item.to}
               end={item.to === "/admin"}
               className={({ isActive }) =>
-                `flex items-center gap-3 rounded-md px-3 py-2 text-sm ${isActive ? "bg-primary text-primary-foreground" : "hover:bg-accent hover:text-accent-foreground"}`
+                `flex items-center gap-3 border-l-[3px] px-4 py-3 text-sm font-medium transition-colors ${
+                  isActive ? "border-primary bg-[#E8F0FE] text-primary" : "border-transparent text-[#5F6368] hover:bg-[#F3F3F3] hover:text-primary"
+                }`
               }
             >
               <item.icon size={18} />
@@ -35,8 +37,8 @@ export const AppLayout = () => {
           ))}
         </nav>
       </aside>
-      <main className="lg:pl-64">
-        <header className="sticky top-0 z-10 flex min-h-16 items-center justify-between gap-3 border-b border-border bg-background/95 px-4 py-3 backdrop-blur">
+      <main className="lg:pl-[280px]">
+        <header className="sticky top-0 z-10 flex min-h-16 items-center justify-between gap-3 border-b border-border bg-white px-4 py-3 shadow-[0_2px_4px_rgba(0,0,0,0.08)] md:px-6">
           <div>
             <p className="text-sm text-muted-foreground">Đang đăng nhập</p>
             <p className="max-w-[180px] truncate font-medium sm:max-w-none">{user?.name}</p>
@@ -57,11 +59,11 @@ export const AppLayout = () => {
             </Button>
           </div>
         </header>
-        <div className="p-4 md:p-6">
+        <div className="mx-auto max-w-[1400px] p-4 md:p-6">
           <Outlet />
         </div>
       </main>
-      <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t border-border bg-background/95 px-1 py-2 backdrop-blur lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t border-border bg-white px-1 py-2 shadow-[0_-2px_4px_rgba(0,0,0,0.08)] lg:hidden">
         {[
           { to: "/admin", label: "Tổng quan", icon: Home },
           { to: "/admin/users", label: "Người dùng", icon: Users },
@@ -74,7 +76,7 @@ export const AppLayout = () => {
             to={item.to}
             end={item.to === "/admin"}
             className={({ isActive }) =>
-              `flex min-w-0 flex-col items-center gap-1 rounded-md px-1 py-1.5 text-[11px] ${isActive ? "text-primary" : "text-muted-foreground"}`
+              `flex min-w-0 flex-col items-center gap-1 rounded px-1 py-1.5 text-[11px] ${isActive ? "text-primary" : "text-muted-foreground"}`
             }
           >
             <item.icon size={20} />

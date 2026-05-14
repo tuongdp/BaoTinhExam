@@ -17,16 +17,16 @@ export const ResultPage = () => {
   if (!submission) return <div className="p-6">Đang tải kết quả...</div>;
 
   return (
-    <main className="grid min-h-screen place-items-center bg-background p-4">
+    <main className="grid min-h-screen place-items-center bg-[#F8F9FA] p-4">
       <Card className="w-full max-w-md text-center">
         <CardHeader>
           <CardTitle className="text-2xl">Kết quả bài thi</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="mb-6 text-5xl font-semibold">
+          <div className="mb-6 text-5xl font-semibold text-[#202124]">
             {submission.score ?? 0}/{submission.totalPoints ?? 0}
           </div>
-          <CardDescription>Điểm có thể được cập nhật sau khi chấm tự luận.</CardDescription>
+          <CardDescription>Điểm có thể được cập nhật sau khi giáo viên chấm câu tự luận.</CardDescription>
           <Button asChild className="mt-6" variant="secondary">
             <Link to="/exam/join">
               <RotateCcw size={18} />

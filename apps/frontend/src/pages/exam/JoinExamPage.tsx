@@ -20,9 +20,9 @@ export const JoinExamPage = () => {
   };
 
   return (
-    <main className="min-h-screen bg-background p-4">
+    <main className="min-h-screen bg-[#F8F9FA] p-4">
       <div className="mx-auto flex max-w-3xl items-center justify-between py-4">
-        <h1 className="text-xl font-semibold">ExamHub</h1>
+        <h1 className="text-xl font-semibold text-[#202124]">BaoTinh Exam</h1>
         <Button variant="secondary" onClick={logout}>
           <LogOut size={18} />
           Đăng xuất
@@ -31,7 +31,7 @@ export const JoinExamPage = () => {
       <Card className="mx-auto mt-20 max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl">Vào phòng thi</CardTitle>
-          <CardDescription>Nhập mã phòng 6 ký tự do quản trị viên cung cấp.</CardDescription>
+          <CardDescription>Nhập mã phòng 6 ký tự do giáo viên hoặc quản trị viên cung cấp.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={submit} className="space-y-4">

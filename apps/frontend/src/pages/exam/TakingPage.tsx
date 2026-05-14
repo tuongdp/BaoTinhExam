@@ -77,10 +77,12 @@ export const TakingPage = () => {
   const question = items[current]?.question;
   const answeredCount = items.filter((item) => answers[String(item.question.id)] != null && answers[String(item.question.id)] !== "").length;
   const progress = items.length ? Math.round((answeredCount / items.length) * 100) : 0;
+  const unansweredCount = Math.max(items.length - answeredCount, 0);
 
   const submit = async (forced = false) => {
     if (!submission) return;
-    if (!forced && !window.confirm("Bạn muốn nộp bài ngay bây giờ?")) return;
+    if (!forced && unansweredCount > 0 && !window.confirm(`Bạn còn ${unansweredCount} câu chưa làm. Bạn vẫn muốn nộp bài?`)) return;
+    if (!forced && unansweredCount === 0 && !window.confirm("Bạn muốn nộp bài ngay bây giờ?")) return;
     await api.post(`/submissions/${submission.id}/save`, { answers });
     await api.post(`/submissions/${submission.id}/submit`);
     localStorage.removeItem(storageKey);
@@ -92,18 +94,20 @@ export const TakingPage = () => {
   const updateAnswer = (questionId: number, value: unknown) => setAnswers((prev) => ({ ...prev, [String(questionId)]: value }));
 
   return (
-    <main className="min-h-screen bg-background pb-24 lg:pb-0">
-      <header className="sticky top-0 z-10 border-b border-border bg-background/95 backdrop-blur">
+    <main className="min-h-screen bg-[#F8F9FA] pb-24 lg:pb-0">
+      <header className="sticky top-0 z-10 border-b border-border bg-white shadow-[0_2px_4px_rgba(0,0,0,0.08)]">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 p-3 sm:p-4">
           <div className="min-w-0 flex-1">
-            <h1 className="truncate font-semibold">{room.exam.title}</h1>
+            <h1 className="truncate font-semibold text-[#202124]">{room.exam.title}</h1>
             <p className="text-sm text-muted-foreground">
               Đã trả lời {answeredCount}/{items.length}
             </p>
             <Progress className="mt-2" value={progress} />
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <Badge variant="outline" className="px-3 py-2 font-mono text-sm">{timer.label}</Badge>
+            <Badge variant="outline" className="rounded px-3 py-2 font-mono text-sm">
+              {timer.label}
+            </Badge>
             <Button className="hidden sm:inline-flex" onClick={() => void submit()}>
               <Check size={18} />
               Nộp bài
@@ -144,29 +148,31 @@ export const TakingPage = () => {
           )}
         </section>
         <Card>
-          <CardContent className="p-3 lg:p-4">
-          <div className="mb-3 flex items-center gap-2 text-sm text-muted-foreground">
-            <AlertTriangle size={16} />
-            Tiến độ
-          </div>
-          <div className="grid grid-cols-6 gap-2 sm:grid-cols-8 lg:grid-cols-5">
-            {items.map((item, index) => (
-              <button
-                key={item.id}
-                className={`h-10 rounded-md border text-sm transition-colors ${index === current ? "border-primary" : "border-input"} ${answers[String(item.question.id)] ? "bg-primary text-primary-foreground" : "hover:bg-accent"} ${flagged.has(item.question.id) ? "ring-2 ring-amber-400" : ""}`}
-                onClick={() => {
-                  setCurrent(index);
-                  document.getElementById(`question-${item.question.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
-                }}
-              >
-                {index + 1}
-              </button>
-            ))}
-          </div>
+          <CardContent className="p-4">
+            <div className="mb-3 flex items-center gap-2 text-sm text-muted-foreground">
+              <AlertTriangle size={16} />
+              Tiến độ, còn {unansweredCount} câu chưa làm
+            </div>
+            <div className="grid grid-cols-6 gap-2 sm:grid-cols-8 lg:grid-cols-5">
+              {items.map((item, index) => (
+                <button
+                  key={item.id}
+                  className={`h-10 rounded border text-sm transition-colors ${index === current ? "border-primary" : "border-input"} ${
+                    answers[String(item.question.id)] ? "bg-primary text-primary-foreground" : "bg-white hover:bg-accent"
+                  } ${flagged.has(item.question.id) ? "ring-2 ring-[#FBBC04]" : ""}`}
+                  onClick={() => {
+                    setCurrent(index);
+                    document.getElementById(`question-${item.question.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                >
+                  {index + 1}
+                </button>
+              ))}
+            </div>
           </CardContent>
         </Card>
       </div>
-      <div className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 gap-2 border-t border-border bg-background/95 p-3 backdrop-blur sm:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 gap-2 border-t border-border bg-white p-3 shadow-[0_-2px_4px_rgba(0,0,0,0.08)] sm:hidden">
         <Button variant="secondary" className="px-2 text-xs" disabled={current === 0 || !room.exam.canGoBack || room.exam.mode === "ALL_AT_ONCE"} onClick={() => setCurrent((value) => Math.max(0, value - 1))}>
           <ChevronLeft size={16} />
           Trước
