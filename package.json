@@ -10,7 +10,10 @@
   "scripts": {
     "dev": "concurrently \"npm run dev -w apps/backend\" \"npm run dev -w apps/frontend\"",
     "dev:stop": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"$ports=@(4000,5173,5174); $processIds=Get-NetTCPConnection -LocalPort $ports -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique; foreach ($id in $processIds) { Stop-Process -Id $id -Force -ErrorAction SilentlyContinue }; exit 0\"",
+    "start": "npm start -w apps/backend",
     "build": "npm run build -w apps/backend && npm run build -w apps/frontend",
+    "build:backend": "npm run build -w apps/backend",
+    "build:frontend": "npm run build -w apps/frontend",
     "lint": "npm run lint -w apps/frontend",
     "db:generate": "npm run prisma:generate -w apps/backend",
     "db:migrate": "npm run prisma:migrate -w apps/backend",

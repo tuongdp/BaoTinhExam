@@ -79,7 +79,7 @@ VITE_SOCKET_URL=https://ten-backend-cua-ban
 Railway là lựa chọn gọn nhất nếu bạn dùng MySQL trên cùng nền tảng.
 
 1. Tạo project Railway mới.
-2. Thêm dịch vụ MySQL.
+2. Thêm dịch vụ MySQL bằng Railway template: `New` -> `Database` -> `MySQL`. Không tạo MySQL bằng GitHub repo service.
 3. Thêm một service cho backend từ GitHub repo.
 4. Thêm một service cho frontend từ cùng GitHub repo.
 
@@ -159,6 +159,14 @@ Lệnh chạy: npm start
 Đường dẫn kiểm tra sức khỏe: /health
 ```
 
+Nếu tạo Web Service thủ công trên Render mà không dùng Blueprint, đặt:
+
+```text
+Root Directory: apps/backend
+Build Command: npm install --include=dev && npm run build
+Start Command: npm run prisma:deploy && npm start
+```
+
 Đặt biến môi trường API giống phần trên, đặc biệt:
 
 ```text
@@ -174,6 +182,26 @@ Repo đã có `vercel.json`. Vercel sẽ build frontend bằng:
 ```text
 npm run build -w apps/frontend
 ```
+
+Nếu tạo Vercel project thủ công, có hai cấu hình hợp lệ. Chọn một trong hai:
+
+```text
+Root Directory: để trống
+Install Command: npm ci --include=dev
+Build Command: npm run build -w apps/frontend
+Output Directory: apps/frontend/dist
+```
+
+Hoặc:
+
+```text
+Root Directory: apps/frontend
+Install Command: npm install --include=dev
+Build Command: npm run build
+Output Directory: dist
+```
+
+Nếu log Vercel chỉ cài khoảng `181 packages`, project đang trỏ nhầm sang backend. Frontend standalone thường cài hơn 300 packages.
 
 Đặt biến môi trường frontend trên Vercel:
 
