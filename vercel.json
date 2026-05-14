@@ -1,5 +1,5 @@
 {
-  "installCommand": "npm install",
+  "installCommand": "npm ci --include=dev",
   "buildCommand": "npm run build -w apps/frontend",
   "outputDirectory": "apps/frontend/dist",
   "framework": "vite",
