@@ -27,10 +27,10 @@ export const LoginPage = () => {
   };
 
   return (
-    <main className="grid min-h-screen place-items-center bg-muted/35 p-4">
+    <main className="grid min-h-screen place-items-center bg-[#F8F9FA] p-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">ExamHub</CardTitle>
+          <CardTitle className="text-2xl">BaoTinh Exam</CardTitle>
           <CardDescription>Đăng nhập để quản lý hoặc làm bài thi.</CardDescription>
         </CardHeader>
         <CardContent>

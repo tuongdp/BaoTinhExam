@@ -27,7 +27,7 @@ export const RegisterPage = () => {
   };
 
   return (
-    <main className="grid min-h-screen place-items-center bg-muted/35 p-4">
+    <main className="grid min-h-screen place-items-center bg-[#F8F9FA] p-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle className="text-2xl">Tạo tài khoản</CardTitle>
