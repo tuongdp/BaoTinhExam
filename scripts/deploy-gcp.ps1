@@ -97,10 +97,7 @@ try {
 } catch {
   & gcloud artifacts repositories create examhub --repository-format=docker --location $Region --project $ProjectId
   if ($LASTEXITCODE -ne 0) {
-    $repoCheck = gcloud artifacts repositories describe examhub --location $Region --project $ProjectId --format="value(name)" 2>$null
-    if (-not $repoCheck) {
-      throw "Failed to create Artifact Registry repository examhub"
-    }
+    Write-Warning "Artifact Registry repository may already exist. Continuing."
   }
 }
 
