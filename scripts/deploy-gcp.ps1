@@ -101,7 +101,7 @@ try {
 try {
   Invoke-Gcloud sql instances describe $DbInstance --project $ProjectId *> $null
 } catch {
-  Invoke-Gcloud sql instances create $DbInstance --database-version=POSTGRES_16 --tier=db-f1-micro --region=$Region --project $ProjectId
+  Invoke-Gcloud sql instances create $DbInstance --database-version=POSTGRES_16 --edition=ENTERPRISE --tier=db-f1-micro --region=$Region --project $ProjectId
 }
 
 try {
