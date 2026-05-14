@@ -74,7 +74,7 @@ Invoke-Gcloud config set project $ProjectId
 
 $billingEnabled = $false
 try {
-  $billingState = gcloud beta billing projects describe $ProjectId --format="value(billingEnabled)" 2>$null
+  $billingState = gcloud billing projects describe $ProjectId --format="value(billingEnabled)" 2>$null
   $billingEnabled = $billingState -eq "True"
 } catch {
   $billingEnabled = $false
