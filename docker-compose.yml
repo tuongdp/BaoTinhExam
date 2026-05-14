@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: examhub-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: examhub
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - examhub-postgres:/var/lib/postgresql/data
+
+volumes:
+  examhub-postgres:

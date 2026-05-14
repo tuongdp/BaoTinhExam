@@ -1,0 +1,197 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  email         String         @unique
+  password      String?
+  name          String
+  avatar        String?
+  role          Role           @default(USER)
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  submissions   Submission[]
+  examRooms     ExamRoomUser[]
+  refreshTokens RefreshToken[]
+  questions     Question[]     @relation("QuestionAuthor")
+  exams         Exam[]         @relation("ExamAuthor")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  USER
+}
+
+model Question {
+  id            Int           @id @default(autoincrement())
+  type          QuestionType
+  content       String        @db.Text
+  mediaUrl      String?
+  mediaType     MediaType?
+  options       Json?
+  correctAnswer Json?
+  explanation   String?       @db.Text
+  difficulty    Difficulty    @default(MEDIUM)
+  points        Float         @default(1)
+  createdById   Int
+  createdBy     User          @relation("QuestionAuthor", fields: [createdById], references: [id])
+  topics        Topic[]       @relation("QuestionTopics")
+  examItems     ExamItem[]
+  gradedItems   GradedItem[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  MULTIPLE_SELECT
+  TRUE_FALSE
+  SHORT_ANSWER
+  ESSAY
+  FILL_IN_BLANK
+  IMAGE_CHOICE
+  VIDEO_CHOICE
+  AUDIO_CHOICE
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  AUDIO
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model Topic {
+  id        Int        @id @default(autoincrement())
+  name      String     @unique
+  questions Question[] @relation("QuestionTopics")
+}
+
+model Exam {
+  id               Int        @id @default(autoincrement())
+  title            String
+  description      String?    @db.Text
+  thumbnail        String?
+  subject          String?
+  duration         Int
+  openAt           DateTime?
+  closeAt          DateTime?
+  mode             ExamMode   @default(ALL_AT_ONCE)
+  shuffleQuestions Boolean    @default(false)
+  shuffleOptions   Boolean    @default(false)
+  showResultAfter  Boolean    @default(true)
+  showAnswerAfter  Boolean    @default(false)
+  passScore        Float?
+  maxAttempts      Int        @default(1)
+  timeLimitPerQ    Int?
+  canGoBack        Boolean    @default(true)
+  isPublished      Boolean    @default(false)
+  createdById      Int
+  createdBy        User       @relation("ExamAuthor", fields: [createdById], references: [id])
+  examItems        ExamItem[]
+  rooms            ExamRoom[]
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
+
+enum ExamMode {
+  ONE_BY_ONE
+  ALL_AT_ONCE
+}
+
+model ExamItem {
+  id         Int      @id @default(autoincrement())
+  examId     Int
+  questionId Int
+  order      Int
+  points     Float    @default(1)
+  exam       Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  question   Question @relation(fields: [questionId], references: [id])
+
+  @@unique([examId, questionId])
+}
+
+model ExamRoom {
+  id          Int            @id @default(autoincrement())
+  code        String         @unique
+  name        String
+  examId      Int
+  status      RoomStatus     @default(WAITING)
+  isPrivate   Boolean        @default(false)
+  startAt     DateTime?
+  endAt       DateTime?
+  exam        Exam           @relation(fields: [examId], references: [id])
+  users       ExamRoomUser[]
+  submissions Submission[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+enum RoomStatus {
+  WAITING
+  IN_PROGRESS
+  ENDED
+}
+
+model ExamRoomUser {
+  id       Int      @id @default(autoincrement())
+  roomId   Int
+  userId   Int
+  joinedAt DateTime @default(now())
+  room     ExamRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@unique([roomId, userId])
+}
+
+model Submission {
+  id          Int          @id @default(autoincrement())
+  roomId      Int
+  userId      Int
+  answers     Json         @default("{}")
+  score       Float?
+  totalPoints Float?
+  isPassed    Boolean?
+  startedAt   DateTime     @default(now())
+  submittedAt DateTime?
+  tabSwitches Int          @default(0)
+  room        ExamRoom     @relation(fields: [roomId], references: [id])
+  user        User         @relation(fields: [userId], references: [id])
+  gradedItems GradedItem[]
+
+  @@unique([roomId, userId])
+}
+
+model GradedItem {
+  id           Int         @id @default(autoincrement())
+  submissionId Int
+  questionId   Int
+  score        Float?
+  feedback     String?
+  gradedById   Int?
+  gradedAt     DateTime?
+  submission   Submission  @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  question     Question    @relation(fields: [questionId], references: [id])
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
