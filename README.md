@@ -4,7 +4,7 @@ Full-stack online exam platform scaffolded with:
 
 - Frontend: React, Vite, TypeScript, Tailwind CSS
 - Backend: Node.js, Express, Prisma, Socket.io
-- Database: PostgreSQL by default
+- Database: MySQL by default
 - Auth: JWT access and refresh tokens
 
 ## Setup
@@ -37,17 +37,20 @@ apps/
   frontend/
 ```
 
-## Deploy To Render And Vercel
+## Deploy To Railway With MySQL
 
-Recommended setup:
+Recommended setup on Railway:
 
-- Backend + PostgreSQL: Render
-- Frontend: Vercel
+- Backend service: `apps/backend`
+- Frontend service: `apps/frontend`
+- Database: Railway MySQL
 
 This repo includes:
 
-- `render.yaml` for Render Blueprint deploys
-- `vercel.json` for Vercel frontend deploys
+- `apps/backend/railway.json`
+- `apps/frontend/railway.json`
+
+Railway docs note that MySQL exposes variables such as `MYSQL_URL`, and monorepos should configure the root directory per service.
 
 ### 1. Push Latest Commit
 
@@ -57,36 +60,60 @@ git push
 
 If Git asks for credentials, sign in to GitHub from your terminal or push from your IDE.
 
-### 2. Deploy Backend On Render
+### 2. Create Railway Project
 
-1. Open Render Dashboard.
-2. Click `New` -> `Blueprint`.
-3. Select this GitHub repo.
-4. Render will read `render.yaml` and create:
-   - `examhub-api`
-   - `examhub-db`
+1. Open Railway Dashboard.
+2. Create a new project.
+3. Add a MySQL database service.
+4. Add a GitHub repo service for backend.
+5. Add another GitHub repo service for frontend.
 
-Important Render env vars:
+### 3. Backend Service Settings
+
+Set backend service root directory:
+
+```text
+Root Directory: /apps/backend
+Config File Path: /apps/backend/railway.json
+```
+
+Set backend environment variables:
 
 ```text
 NODE_ENV=production
-PORT=10000
-DATABASE_URL=<from Render database>
-CLIENT_URL=https://your-vercel-app.vercel.app
-CLIENT_URLS=https://your-vercel-app.vercel.app,http://localhost:5173
-JWT_ACCESS_SECRET=<generated>
-JWT_REFRESH_SECRET=<generated>
+DATABASE_URL=${{ MySQL.MYSQL_URL }}
+CLIENT_URL=https://your-frontend.up.railway.app
+CLIENT_URLS=https://your-frontend.up.railway.app,http://localhost:5173
+JWT_ACCESS_SECRET=replace-with-a-long-random-secret
+JWT_REFRESH_SECRET=replace-with-another-long-random-secret
+ACCESS_TOKEN_TTL=15m
+REFRESH_TOKEN_DAYS=7
+UPLOAD_DIR=uploads
 ```
 
-Backend health check:
+Backend commands are defined in `apps/backend/railway.json`:
 
 ```text
-https://your-render-api.onrender.com/health
+Build Command: npm install && npm run prisma:generate && npm run build && npm run prisma:deploy
+Start Command: npm start
+Health Check Path: /health
 ```
 
-### 3. Seed Admin On Render
+After deploy, open the backend public URL:
 
-After the first backend deploy, open Render service `examhub-api` -> `Shell` and run:
+```text
+https://your-backend.up.railway.app/health
+```
+
+Expected:
+
+```json
+{"ok":true}
+```
+
+### 4. Seed Admin
+
+After the backend deploy succeeds, open the backend service shell and run:
 
 ```bash
 npm run seed
@@ -99,41 +126,46 @@ Default admin:
 
 Change this password after first login.
 
-### 4. Deploy Frontend On Vercel
+### 5. Frontend Service Settings
 
-1. Open Vercel Dashboard.
-2. Click `Add New Project`.
-3. Select the same GitHub repo.
-4. Vercel will read `vercel.json`.
-5. Set environment variables:
+Set frontend service root directory:
 
 ```text
-VITE_API_URL=https://your-render-api.onrender.com/api
-VITE_SOCKET_URL=https://your-render-api.onrender.com
+Root Directory: /apps/frontend
+Config File Path: /apps/frontend/railway.json
 ```
 
-Manual Vercel build settings if needed:
+Set frontend environment variables:
 
 ```text
-Install Command: npm install
-Build Command: npm run build -w apps/frontend
-Output Directory: apps/frontend/dist
+VITE_API_URL=https://your-backend.up.railway.app/api
+VITE_SOCKET_URL=https://your-backend.up.railway.app
 ```
 
-### 5. Update Render CORS
-
-After Vercel gives the final frontend URL, update Render env vars:
+Frontend commands are defined in `apps/frontend/railway.json`:
 
 ```text
-CLIENT_URL=https://your-vercel-app.vercel.app
-CLIENT_URLS=https://your-vercel-app.vercel.app,http://localhost:5173
+Build Command: npm install && npm run build
+Start Command: npx vite preview --host 0.0.0.0 --port $PORT
+Health Check Path: /
 ```
 
-Redeploy `examhub-api`.
+### 6. Update Backend CORS
+
+After Railway gives the final frontend URL, update backend env vars:
+
+```text
+CLIENT_URL=https://your-frontend.up.railway.app
+CLIENT_URLS=https://your-frontend.up.railway.app,http://localhost:5173
+```
+
+Redeploy backend after changing these values.
 
 ### Production Notes
 
-- Render free web services can sleep when inactive.
-- Render free PostgreSQL is useful for testing, but check the Render dashboard and docs for current limits. Render docs currently note free PostgreSQL databases expire after 30 days.
-- Local `/uploads` on Render is ephemeral. For real uploads, switch to Cloudinary or S3.
+- Local `/uploads` on Railway is ephemeral unless you configure persistent storage. For real uploads, switch to Cloudinary or S3.
 - `db:deploy` currently uses `prisma db push` for simple deployment. For long-term production, generate Prisma migrations and switch to `prisma migrate deploy`.
+
+## Render And Vercel Alternative
+
+The repo still includes `render.yaml` and `vercel.json` if you want to deploy backend on Render and frontend on Vercel instead. For Railway + MySQL, use the Railway steps above.

@@ -33,7 +33,7 @@ export const listExams = asyncHandler(async (req, res) => {
     isPublished?: boolean;
   };
   const where: Prisma.ExamWhereInput = {
-    ...(search ? { title: { contains: search, mode: "insensitive" } } : {}),
+    ...(search ? { title: { contains: search } } : {}),
     ...(typeof isPublished === "boolean" ? { isPublished } : {})
   };
   const [items, total] = await Promise.all([

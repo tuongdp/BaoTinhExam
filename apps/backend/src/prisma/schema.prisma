@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -161,7 +161,7 @@ model Submission {
   id          Int          @id @default(autoincrement())
   roomId      Int
   userId      Int
-  answers     Json         @default("{}")
+  answers     Json
   score       Float?
   totalPoints Float?
   isPassed    Boolean?

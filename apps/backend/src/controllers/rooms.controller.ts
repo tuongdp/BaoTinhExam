@@ -8,7 +8,7 @@ const code = customAlphabet("ABCDEFGHJKLMNPQRSTUVWXYZ23456789", 6);
 
 export const listRooms = asyncHandler(async (req, res) => {
   const { page, limit, search } = req.query as unknown as { page: number; limit: number; search?: string };
-  const where = search ? { name: { contains: search, mode: "insensitive" as const } } : {};
+  const where = search ? { name: { contains: search } } : {};
   const [items, total] = await Promise.all([
     prisma.examRoom.findMany({ where, include: { exam: true, users: true }, skip: (page - 1) * limit, take: limit, orderBy: { createdAt: "desc" } }),
     prisma.examRoom.count({ where })

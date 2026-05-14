@@ -13,7 +13,7 @@ export const listUsers = asyncHandler(async (req, res) => {
     isActive?: boolean;
   };
   const where = {
-    ...(search ? { OR: [{ name: { contains: search, mode: "insensitive" as const } }, { email: { contains: search, mode: "insensitive" as const } }] } : {}),
+    ...(search ? { OR: [{ name: { contains: search } }, { email: { contains: search } }] } : {}),
     ...(role ? { role } : {}),
     ...(typeof isActive === "boolean" ? { isActive } : {})
   };

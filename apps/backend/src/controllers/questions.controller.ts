@@ -23,7 +23,7 @@ export const listQuestions = asyncHandler(async (req, res) => {
   const where: Prisma.QuestionWhereInput = {
     ...(type ? { type } : {}),
     ...(difficulty ? { difficulty } : {}),
-    ...(search ? { content: { contains: search, mode: "insensitive" } } : {}),
+    ...(search ? { content: { contains: search } } : {}),
     ...(topic ? { topics: { some: { name: topic } } } : {})
   };
   const [items, total] = await Promise.all([

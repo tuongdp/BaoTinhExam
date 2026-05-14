@@ -1,16 +1,15 @@
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: examhub-postgres
+  mysql:
+    image: mysql:8.4
+    container_name: examhub-mysql
     restart: unless-stopped
     environment:
-      POSTGRES_DB: examhub
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      MYSQL_DATABASE: examhub
+      MYSQL_ROOT_PASSWORD: password
     ports:
-      - "5432:5432"
+      - "3306:3306"
     volumes:
-      - examhub-postgres:/var/lib/postgresql/data
+      - examhub-mysql:/var/lib/mysql
 
 volumes:
-  examhub-postgres:
+  examhub-mysql:

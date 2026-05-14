@@ -19,7 +19,7 @@ export const startSubmission = asyncHandler(async (req, res) => {
   const submission = await prisma.submission.upsert({
     where: { roomId_userId: { roomId: room.id, userId: req.user.id } },
     update: {},
-    create: { roomId: room.id, userId: req.user.id }
+    create: { roomId: room.id, userId: req.user.id, answers: {} }
   });
   res.status(201).json(submission);
 });
